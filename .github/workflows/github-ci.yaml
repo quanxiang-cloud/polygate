@@ -1,0 +1,24 @@
+name: polygate
+env:
+  PROJECT_NAME: polygate
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - run: golint -set_exit_status $(go list ./... | grep -v /vendor/)
+  test:
+    runs-on: self-hosted
+    needs: lint
+    steps:
+      - run: go test ./...
+      - run: go test -cover ./...
+
+  deploy_alpha:
+    runs-on: self-hosted
+    needs: [lint,test]
+    if: github.ref == 'refs/heads/alpha'
+    steps:
+      - run: GOOS=linux GOOSARCH=amd64 go build -o ${{ env.PROJECT_NAME }} ./cmd/.
+      - run: /root/github-runners/dev_auto.sh ${{ env.PROJECT_NAME }}
