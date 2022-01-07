@@ -11,7 +11,7 @@ var (
 
 	ErrInvalidURI               = errdefiner.MustReg(140010010013, "无效的URI：%v")
 	ErrInputArgValidateMismatch = errdefiner.MustReg(140010010012, "参数验证失败：%v.%v")
-	ErrInputValueExpired        = errdefiner.MustReg(140010010011, "参数已过期：%v.%v")
+	ErrInputValueExpired        = errdefiner.MustReg(140010010011, "参数已过期：%v.%v(%s)")
 	ErrInputValueInvalid        = errdefiner.MustReg(140010010010, "参数值不合法：%v.%v")
 	ErrInputMissingArg          = errdefiner.MustReg(140010010009, "缺少参数：%v.%v")
 

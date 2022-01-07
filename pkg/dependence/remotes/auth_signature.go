@@ -27,7 +27,8 @@ func (s *signatureInfo) Verify() error {
 	now := time.Now().UTC()
 	elapse := now.Sub(then)
 	if !(elapse > 0 && elapse < polysign.PolySignatureTimeout) {
-		return errcode.ErrInputValueExpired.FmtError("header", polysign.XHeaderPolySignTimestamp)
+		diff := elapse / time.Second * time.Second
+		return errcode.ErrInputValueExpired.FmtError("header", polysign.XHeaderPolySignTimestamp, diff.String())
 	}
 	switch s.SignMethod {
 	case polysign.XHeaderPolySignMethodVal:
