@@ -3,8 +3,6 @@ package gateentry
 import (
 	"net/http"
 
-	"github.com/quanxiang-cloud/cabin/logger"
-	ginlog "github.com/quanxiang-cloud/cabin/tailormade/gin"
 	"github.com/quanxiang-cloud/cabin/tailormade/resp"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain"
@@ -43,7 +41,6 @@ type GateEntry struct {
 // Handle is the main handler of gate
 func (v *GateEntry) Handle(c *gin.Context) {
 	if err := v.n.Handle(c); err != nil {
-		logger.Logger.PutError(err, "GateEntry", ginlog.GINRequestID(c))
 		resp.Format(nil, err).Context(c, http.StatusBadRequest)
 	}
 }

@@ -43,7 +43,8 @@ func (n *Node) GetName() string {
 // Handle handle the chain
 func (n *Node) Handle(c *gin.Context) error {
 	for p := n; p != nil; p = p.Next {
-		if err := p.Handle(c); err != nil {
+		// BUG: p.Handle makes stack overflow here
+		if err := p.H.Handle(c); err != nil {
 			return errcode.ErrGateError.FmtError(n.GetName(), err.Error())
 		}
 	}
