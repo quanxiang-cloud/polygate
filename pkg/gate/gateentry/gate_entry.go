@@ -17,9 +17,9 @@ import (
 
 // InitGate init regist of gate nodes
 func InitGate(cfg *config.Config) error {
+	regist.MustRegist("", requestid.New(cfg))
 	regist.MustRegist("", authorize.New(cfg))
 	regist.MustRegist("", goalie.New(cfg))
-	regist.MustRegist("", requestid.New(cfg))
 	regist.MustRegist("", ginproxy.New(cfg))
 	return nil
 }
