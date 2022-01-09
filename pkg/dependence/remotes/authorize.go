@@ -128,7 +128,6 @@ func (r *authKey) request(c *gin.Context, arg *requestArg) error {
 	delete(c.Request.Header, polysign.XHeaderPolySignMethod)
 	delete(c.Request.Header, polysign.XHeaderPolySignVersion)
 	delete(c.Request.Header, polysign.XHeaderPolySignTimestamp)
-
 	return nil
 }
 
