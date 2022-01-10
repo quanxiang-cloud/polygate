@@ -3,10 +3,10 @@ package router
 import (
 	"fmt"
 
-	ginlog "github.com/quanxiang-cloud/cabin/tailormade/gin"
 	"github.com/quanxiang-cloud/polygate/pkg/basic/consts"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/gateentry"
+	"github.com/quanxiang-cloud/polygate/pkg/lib/ginlog"
 
 	"github.com/gin-gonic/gin"
 )
