@@ -1,8 +1,6 @@
 package chain
 
 import (
-	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,15 +36,4 @@ func (n *Node) GetName() string {
 		return n.Name
 	}
 	return n.H.Name()
-}
-
-// Handle handle the chain
-func (n *Node) Handle(c *gin.Context) error {
-	for p := n; p != nil; p = p.Next {
-		// BUG: p.Handle makes stack overflow here
-		if err := p.H.Handle(c); err != nil {
-			return errcode.ErrGateError.FmtError(p.GetName(), err.Error())
-		}
-	}
-	return nil
 }

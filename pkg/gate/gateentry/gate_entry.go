@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/quanxiang-cloud/cabin/tailormade/resp"
+	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain/regist"
@@ -40,7 +41,14 @@ type GateEntry struct {
 
 // Handle is the main handler of gate
 func (v *GateEntry) Handle(c *gin.Context) {
-	if err := v.n.Handle(c); err != nil {
+	var err error
+	for p := v.n; p != nil; p = p.Next {
+		if e := p.H.Handle(c); e != nil {
+			err = errcode.ErrGateError.FmtError(p.GetName(), e.Error())
+			break
+		}
+	}
+	if err != nil {
 		resp.Format(nil, err).Context(c, http.StatusBadRequest)
 	}
 }
