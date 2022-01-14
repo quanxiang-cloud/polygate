@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
@@ -77,11 +78,13 @@ func parsePolySignatureInfo(c *gin.Context) (*signatureInfo, error) {
 	}
 
 	// BUG: http: proxy error: net/http: HTTP/1.x transport connection broken: http: ContentLength=177 with Body length 0
-	var body json.RawMessage
-	if err := httputil.BindBody(c, &body); err != nil {
-		return nil, err
+	if c.Request.Method != http.MethodGet {
+		var body json.RawMessage
+		if err := httputil.BindBody(c, &body); err != nil {
+			return nil, err
+		}
+		c.Request.Body = io.NopCloser(bytes.NewReader(body))
 	}
-	c.Request.Body = io.NopCloser(bytes.NewReader(body))
 
 	signInfo.Signature = popString(signInfo.Body, polysign.XBodyPolySignSignature)
 	signInfo.AccessKeyID = getHeader(polysign.XHeaderPolySignKeyID)
