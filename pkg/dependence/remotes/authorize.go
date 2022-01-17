@@ -124,10 +124,8 @@ func (r *authKey) request(c *gin.Context, arg *requestArg) error {
 
 	cloneProfile(&c.Request.Header, resp.Header)
 	c.Request.Header.Set(header.HeaderAccessKeyID, header.HeaderPrefixAccessKeyID+arg.accessKeyID) // auth by access key
-	delete(c.Request.Header, polysign.XHeaderPolySignKeyID)
-	delete(c.Request.Header, polysign.XHeaderPolySignMethod)
-	delete(c.Request.Header, polysign.XHeaderPolySignVersion)
-	delete(c.Request.Header, polysign.XHeaderPolySignTimestamp)
+	removeAuthArgs(c)
+
 	return nil
 }
 
@@ -156,8 +154,8 @@ func (r *authToken) request(c *gin.Context, arg *requestArg) error {
 		return errcode.ErrInternal.FmtError(resp.Status)
 	}
 
-	delete(c.Request.Header, header.HeaderAccessToken)
 	cloneProfile(&c.Request.Header, resp.Header)
+	removeAuthArgs(c)
 
 	return nil
 }
