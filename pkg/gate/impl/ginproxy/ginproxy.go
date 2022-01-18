@@ -12,8 +12,6 @@ import (
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain"
 
-	"github.com/quanxiang-cloud/cabin/logger"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -50,8 +48,6 @@ func (v *ginproxy) Handle(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
-
-	logger.Logger.Debug("proxy", c.Request.URL.String(), c.Request.Header)
 
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.Transport = v.transport
