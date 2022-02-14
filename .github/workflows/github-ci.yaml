@@ -39,8 +39,9 @@ jobs:
   build_staging:
     runs-on: self-hosted
     needs: [lint,test]
-    if: github.ref == 'refs/heads/master' || ${{ github.ref_type == 'tag' }}
+    if: ${{ github.ref_type == 'tag' }}
     steps:
+      - run: echo ${{ github.ref_type }}
       - run: go mod tidy
       - run: go mod vendor
       - run: echo IMAGE_TAG="v$(date "+%Y%m%d")-${GITHUB_SHA::7}" >> $GITHUB_ENV
