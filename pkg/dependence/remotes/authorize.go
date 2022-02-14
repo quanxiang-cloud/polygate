@@ -105,6 +105,7 @@ func (r *authKey) request(c *gin.Context, arg *requestArg) error {
 	req.Header.Set(header.HeaderContentType, header.MIMEJSON)
 	req.Header.Set(polysign.XHeaderPolySignKeyID, arg.accessKeyID)
 
+	log.Debug("authKey.Request ", req.Header)
 	resp, err := r.Client.Do(req)
 	if err != nil {
 		log.PutError(err, "AuthByKey.Request", ginRequestID(c))
@@ -142,6 +143,7 @@ func (r *authToken) request(c *gin.Context, arg *requestArg) error {
 
 	req.Header.Set(header.HeaderContentType, header.MIMEJSON)
 
+	log.Debug("authToken.Request ", req.Header)
 	resp, err := r.Client.Do(req)
 	if err != nil {
 		log.PutError(err, "AuthByToken.Request", ginRequestID(c))

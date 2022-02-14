@@ -26,6 +26,7 @@ func (r *goalie) Request(c *gin.Context) error {
 	}
 	req.Header.Set(header.HeaderContentType, header.MIMEJSON)
 
+	log.Debug("goalie.Request ", req.Header)
 	resp, err := r.Client.Do(req)
 	if err != nil {
 		log.PutError(err, "Goalie.request", ginRequestID(c))

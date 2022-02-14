@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/quanxiang-cloud/cabin/logger"
 	"github.com/quanxiang-cloud/polygate/pkg/basic/consts"
 	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
@@ -48,6 +49,8 @@ func (v *ginproxy) Handle(c *gin.Context) error {
 	if err != nil {
 		return err
 	}
+
+	logger.Logger.Debug("ginproxy ", c.Request.Header)
 
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.Transport = v.transport
