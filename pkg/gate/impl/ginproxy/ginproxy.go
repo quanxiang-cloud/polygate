@@ -51,7 +51,9 @@ func (v *ginproxy) Handle(c *gin.Context) error {
 
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.Transport = v.transport
-	proxy.ServeHTTP(c.Writer, c.Request)
+	r := c.Request
+	r.Host = url.Host
+	proxy.ServeHTTP(c.Writer, r)
 
 	return nil
 }
