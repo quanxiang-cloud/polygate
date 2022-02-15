@@ -7,6 +7,7 @@ import (
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/gateentry"
 	"github.com/quanxiang-cloud/polygate/pkg/lib/ginlog"
+	"github.com/quanxiang-cloud/polygate/pkg/probe"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,6 +21,8 @@ const (
 
 // Router router
 type Router struct {
+	*probe.Probe
+
 	c *config.Config
 
 	engine *gin.Engine
@@ -31,10 +34,14 @@ func NewRouter(c *config.Config) (*Router, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Router{
+	r := &Router{
 		c:      c,
 		engine: engine,
-	}, nil
+		Probe:  probe.New(),
+	}
+
+	r.probe()
+	return r, nil
 }
 
 func newRouter(c *config.Config) (*gin.Engine, error) {
@@ -59,8 +66,19 @@ func newRouter(c *config.Config) (*gin.Engine, error) {
 	return engine, nil
 }
 
+func (r *Router) probe() {
+	r.engine.GET("liveness", func(c *gin.Context) {
+		r.Probe.LivenessProbe(c.Writer, c.Request)
+	})
+
+	r.engine.Any("readiness", func(c *gin.Context) {
+		r.Probe.ReadinessProbe(c.Writer, c.Request)
+	})
+}
+
 // Run start router
 func (r *Router) Run() {
+	r.Probe.SetRunning()
 	r.engine.Run(r.c.Port)
 }
 
