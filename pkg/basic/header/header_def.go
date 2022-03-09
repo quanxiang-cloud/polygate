@@ -11,6 +11,7 @@ const (
 	HeaderXRequestID   = "X-Request-Id"
 	HeaderAccessToken  = "Access-Token"
 	HeaderAccessKeyID  = "Access-Key-Id"
+	HeaderXTimezone    = "X-Timezone"
 	HeaderTimezone     = "Timezone"
 )
 
