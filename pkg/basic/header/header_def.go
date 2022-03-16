@@ -13,6 +13,7 @@ const (
 	HeaderAccessKeyID  = "Access-Key-Id"
 	HeaderXTimezone    = "X-Timezone"
 	HeaderTimezone     = "Timezone"
+	HeaderTenantID     = "Tenant-Id"
 )
 
 // header prefix

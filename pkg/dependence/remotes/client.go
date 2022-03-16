@@ -44,7 +44,8 @@ type resolver interface {
 func cloneProfile(dst *http.Header, src http.Header) {
 	dst.Set(header.HeaderUserID, header.DeepCopy(src.Values(header.HeaderUserID)))
 	dst.Set(header.HeaderUserName, header.DeepCopy(src.Values(header.HeaderUserName)))
-	dst.Add(header.HeaderDepartmentID, header.DeepCopy(src.Values(header.HeaderDepartmentID)))
+	dst.Set(header.HeaderDepartmentID, header.DeepCopy(src.Values(header.HeaderDepartmentID)))
+	dst.Set(header.HeaderTenantID, header.DeepCopy(src.Values(header.HeaderTenantID)))
 }
 
 func removeAuthArgs(c *gin.Context) {
