@@ -2,6 +2,7 @@ name: polygate
 env:
   PROJECT_NAME: polygate
   IMAGE_PREFIX: dockerhub.qingcloud.com/lowcode
+  DATE: $(date "+%Y%m%d")
 on: [push, pull_request]
 jobs:
   lint:
@@ -44,7 +45,7 @@ jobs:
       - run: echo ${{ github.ref_type }}
       - run: go mod tidy
       - run: go mod vendor
-      - run: echo IMAGE_TAG="v$(date "+%Y%m%d")-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - run: echo IMAGE_TAG="v${{ env.DATE }}-${GITHUB_SHA::7}" >> $GITHUB_ENV
       - run: docker build -t ${{ env.IMAGE_PREFIX }}/${{ env.PROJECT_NAME }}:$IMAGE_TAG .
       - run: docker push ${{ env.IMAGE_PREFIX }}/${{ env.PROJECT_NAME }}:$IMAGE_TAG
       - run: docker tag ${{ env.IMAGE_PREFIX }}/${{ env.PROJECT_NAME }}:$IMAGE_TAG ${{ env.IMAGE_PREFIX }}/${{ env.PROJECT_NAME }}:latest
@@ -56,7 +57,7 @@ jobs:
     needs: [lint,test,build_test]
     if: startsWith(github.ref, 'refs/heads/release')
     steps:
-      - run: echo IMAGE_TAG="v$(date "+%Y%m%d")-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - run: echo IMAGE_TAG="v${{ env.DATE }}-${GITHUB_SHA::7}" >> $GITHUB_ENV
       - run: /opt/upImage.sh ${{ env.IMAGE_PREFIX }}/${{ env.PROJECT_NAME }}:$IMAGE_TAG $GITHUB_REF_NAME
 
   deploy_staging:
@@ -64,5 +65,5 @@ jobs:
     needs: [lint,test,build_staging]
     if: ${{ github.ref_type == 'tag' }}
     steps:
-      - run: echo IMAGE_TAG="v$(date "+%Y%m%d")-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - run: echo IMAGE_TAG="v${{ env.DATE }}-${GITHUB_SHA::7}" >> $GITHUB_ENV
       - run: helm upgrade ${{ env.PROJECT_NAME }} /root/quanxiang_charts_staging/${{ env.PROJECT_NAME }} --kubeconfig ~/.kube/config_staging --set image.tag=$IMAGE_TAG --set image.repo=dockerhub.qingcloud.com/lowcode -n lowcode
