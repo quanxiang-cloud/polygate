@@ -2,12 +2,14 @@ name: polygate
 env:
   PROJECT_NAME: polygate
   IMAGE_PREFIX: dockerhub.qingcloud.com/lowcode
+  DATE: $(date "+%Y%m%d")
 on: [push, pull_request]
 jobs:
   lint:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
+      - run: echo IMAGE_TAG="${{ env.DATE }}-dfdfdfdf"
       - run: golint -set_exit_status $(go list ./... | grep -v /vendor/)
   test:
     runs-on: self-hosted
