@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var ginRequestID = ginlog.GINRequestID // function exports
+var ginRequestID = ginlog.GetRequestID // function exports
 var log = logger.Logger.WithName("dependence.remotes")
 
 // Client is a remote serivice client
