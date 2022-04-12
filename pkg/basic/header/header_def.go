@@ -14,6 +14,8 @@ const (
 	HeaderXTimezone    = "X-Timezone"
 	HeaderTimezone     = "Timezone"
 	HeaderTenantID     = "Tenant-Id"
+
+	HeaderXRedirectService = "XX-Redirect-Service"
 )
 
 // header prefix

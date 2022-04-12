@@ -17,14 +17,15 @@ var DefaultPath = "./configs/config.yml"
 
 // Config 配置文件
 type Config struct {
-	Port            string          `yaml:"port"`
-	Model           string          `yaml:"model"`
-	Schema          string          `yaml:"schema"`
-	APIFilterConfig APIFilterConfig `yaml:"apiFilter"`
-	Gate            Gate            `yaml:"gate"`
-	Remotes         RemotesConfig   `yaml:"remotes"`
-	Proxy           Proxy           `yaml:"proxy"`
-	Log             *logger.Config  `yaml:"log"`
+	Port            string            `yaml:"port"`
+	Model           string            `yaml:"model"`
+	Schema          string            `yaml:"schema"`
+	APIFilterConfig APIFilterConfig   `yaml:"apiFilter"`
+	RedrectService  map[string]string `yaml:"redirectService"`
+	Gate            Gate              `yaml:"gate"`
+	Remotes         RemotesConfig     `yaml:"remotes"`
+	Proxy           Proxy             `yaml:"proxy"`
+	Log             *logger.Config    `yaml:"log"`
 }
 
 // NewConfig 获取配置配置

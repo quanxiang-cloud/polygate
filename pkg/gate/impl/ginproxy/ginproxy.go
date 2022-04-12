@@ -9,6 +9,7 @@ import (
 
 	"github.com/quanxiang-cloud/polygate/pkg/basic/consts"
 	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
+	"github.com/quanxiang-cloud/polygate/pkg/basic/header"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain"
 
@@ -59,9 +60,18 @@ func (v *ginproxy) Handle(c *gin.Context) error {
 }
 
 func (v *ginproxy) reWriteURL(c *gin.Context) (*url.URL, error) {
-	dnsName, ok := c.Params.Get(consts.PathArgServiceName)
-	if !ok {
-		return nil, errcode.ErrInvalidURI.FmtError(c.Request.URL.String())
+	dnsName := ""
+	if s, ok := c.Get(header.HeaderXRedirectService); ok {
+		if ss, ok := s.(string); ok {
+			dnsName = ss
+		}
+	}
+	if dnsName == "" {
+		if s, ok := c.Params.Get(consts.PathArgServiceName); ok {
+			dnsName = s
+		} else {
+			return nil, errcode.ErrInvalidURI.FmtError(c.Request.URL.String())
+		}
 	}
 
 	return url.ParseRequestURI(v.schema + dnsName)
