@@ -1,8 +1,6 @@
 package gateentry
 
 import (
-	"net/http"
-
 	"github.com/quanxiang-cloud/cabin/tailormade/resp"
 	"github.com/quanxiang-cloud/polygate/pkg/basic/errcode"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
@@ -49,6 +47,6 @@ func (v *GateEntry) Handle(c *gin.Context) {
 		}
 	}
 	if err != nil {
-		resp.Format(nil, err).Context(c, http.StatusBadRequest)
+		resp.Format(nil, err).Context(c, c.Writer.Status())
 	}
 }
