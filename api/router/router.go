@@ -62,6 +62,7 @@ func newRouter(c *config.Config) (*gin.Engine, error) {
 
 	apiPath := fmt.Sprintf("/api/v1/:%s/*realPath", consts.PathArgServiceName)
 	engine.Any(apiPath, entry.Handle)
+	engine.POST("/api/v1/gate/ping", PingPong)
 
 	return engine, nil
 }
