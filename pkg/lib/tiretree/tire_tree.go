@@ -8,9 +8,9 @@ import (
 
 // data config
 const (
-	Black byte = 'b'
-	White byte = 'w'
-	empty byte = 0
+	Black string = "b"
+	White string = "w"
+	empty string = ""
 )
 const (
 	anyNone = 0
@@ -48,7 +48,7 @@ func (t *TireTree) Init() *TireTree {
 }
 
 // BatchInsert insert batch keys
-func (t *TireTree) BatchInsert(keys []string, data byte) error {
+func (t *TireTree) BatchInsert(keys []string, data string) error {
 	var err error
 	for _, v := range keys {
 		if e := t.Insert(v, data); e != nil {
@@ -58,7 +58,18 @@ func (t *TireTree) BatchInsert(keys []string, data byte) error {
 	return err
 }
 
-func (t *TireTree) getData(keys []string, index int, data byte) byte {
+// BatchInsertKV insert batch keys of kv
+func (t *TireTree) BatchInsertKV(kvs map[string]string) error {
+	var err error
+	for k, v := range kvs {
+		if e := t.Insert(k, v); e != nil {
+			err = e
+		}
+	}
+	return err
+}
+
+func (t *TireTree) getData(keys []string, index int, data string) string {
 	if index == len(keys)-1 {
 		return data
 	}
@@ -70,11 +81,9 @@ func (t *TireTree) splitKey(key string) []string {
 	if len(subs) > 0 {
 		ret := subs[:0]
 		for _, v := range subs {
-			if v != "" {
-				ret = append(ret, v)
-				if v[0] == '*' { // allow only one "*xxx"
-					break
-				}
+			ret = append(ret, v)
+			if anyType(v) == anyAll { // allow only one "*xxx"
+				break
 			}
 		}
 		subs = ret
@@ -84,7 +93,7 @@ func (t *TireTree) splitKey(key string) []string {
 }
 
 // Insert insert a single key
-func (t *TireTree) Insert(key string, data byte) error {
+func (t *TireTree) Insert(key string, data string) error {
 	subs := t.splitKey(key)
 	n := &t.root
 	var err error
@@ -116,8 +125,8 @@ func (t *TireTree) Delete(key string) bool {
 }
 
 // Match verify if a key matches config keys
-func (t *TireTree) Match(key string) (byte, bool) {
-	if n := t.root.getLeafNode(t.splitKey(key), true); n != nil {
+func (t *TireTree) Match(key string) (string, bool) {
+	if n := t.root.getLeafNode(t.splitKey(key), true); n != nil && n.data != empty {
 		return n.data, true
 	}
 	return empty, false
@@ -159,12 +168,12 @@ func (t *TireTree) Show() string {
 //------------------------------------------------------------------------------
 
 type tireTreeNode struct {
-	data     byte
+	data     string
 	key      string
 	children []*tireTreeNode // first child is for key "*"
 }
 
-func newNode(subKey string, data byte) *tireTreeNode {
+func newNode(subKey string, data string) *tireTreeNode {
 	p := &tireTreeNode{}
 	return p.init(subKey, data)
 }
@@ -190,10 +199,10 @@ func (t *tireTreeNode) getNodePath(subKeys []string) []*tireTreeNode {
 }
 
 func (t *tireTreeNode) getLeafNode(subKeys []string, allowAny bool) *tireTreeNode {
-	return t._getLeafNode(subKeys, allowAny, 0)
+	return t._getLeafNode(subKeys, allowAny)
 }
 
-func (t *tireTreeNode) _getLeafNode(subKeys []string, allowAny bool, depth int) *tireTreeNode {
+func (t *tireTreeNode) _getLeafNode(subKeys []string, allowAny bool) *tireTreeNode {
 	n := t
 	index := 0
 	anyCount := 0
@@ -211,7 +220,7 @@ func (t *tireTreeNode) _getLeafNode(subKeys []string, allowAny bool, depth int) 
 	return n
 }
 
-func (t *tireTreeNode) init(subKey string, data byte) *tireTreeNode {
+func (t *tireTreeNode) init(subKey string, data string) *tireTreeNode {
 	t.key = subKey
 	t.data = data
 	t.children = []*tireTreeNode{nil}
@@ -248,7 +257,7 @@ func (t *tireTreeNode) findAny() (*tireTreeNode, int) {
 	return nil, -1
 }
 
-func (t *tireTreeNode) addAny(key string, data byte) (*tireTreeNode, int, error) {
+func (t *tireTreeNode) addAny(key string, data string) (*tireTreeNode, int, error) {
 	if t.children[0] != nil || len(t.children) > 1 {
 		return nil, -1, fmt.Errorf("node %q exists for %q", t.children[1].key, key)
 	}
@@ -257,7 +266,7 @@ func (t *tireTreeNode) addAny(key string, data byte) (*tireTreeNode, int, error)
 	return n, idx, nil
 }
 
-func (t *tireTreeNode) addChild(subKey string, data byte) (*tireTreeNode, int, error) {
+func (t *tireTreeNode) addChild(subKey string, data string) (*tireTreeNode, int, error) {
 	var err error
 	if n, i := t.findChild(subKey, false); i >= 0 {
 		if n.data == empty && data != empty { //update leaf data
@@ -293,14 +302,22 @@ func (t *tireTreeNode) find(s []*tireTreeNode, key string) int {
 	return -1
 }
 
-func (t *tireTreeNode) findChild(subKey string, allowAny bool) (*tireTreeNode, int) {
-	if isAny := anyType(subKey) > 0; isAny || allowAny {
-		if n, index := t.findAny(); index >= 0 || isAny {
+func (t *tireTreeNode) matchAny(subKey string, allowAny bool) (*tireTreeNode, int) {
+	if allowAny {
+		if n, index := t.findAny(); index >= 0 {
 			return n, index
 		}
-		if isAny && len(t.children) >= 2 {
+		if isAny := anyType(subKey) > 0; isAny && len(t.children) >= 2 {
 			return t.children[1], 1
 		}
+	}
+
+	return nil, -1
+}
+
+func (t *tireTreeNode) findChild(subKey string, allowAny bool) (*tireTreeNode, int) {
+	if n, index := t.matchAny(subKey, allowAny); index >= 0 {
+		return n, index
 	}
 
 	s, from := t.withoutAny()
@@ -321,7 +338,7 @@ func (t *tireTreeNode) _removeChild(index int) {
 	}
 }
 
-func (t *tireTreeNode) removeChild(child *tireTreeNode, data byte) bool {
+func (t *tireTreeNode) removeChild(child *tireTreeNode, data string) bool {
 	if data != empty {
 		child.data = empty
 	}
@@ -341,8 +358,13 @@ func FastSplit(s string, sep byte, n int) []string {
 	if n <= 0 {
 		n = 4
 	}
+	from := 0
+	if t != "" && t[0] == sep {
+		from++
+		t = t[from:]
+	}
 	r := make([]string, 0, n)
-	for i := 0; i < len(s); i++ {
+	for i := from; i < len(s); i++ {
 		if s[i] == sep {
 			r = append(r, t[:i-(len(s)-len(t))])
 			t = s[i+1:]

@@ -1,7 +1,10 @@
 package authorize
 
 import (
+	"errors"
+
 	"github.com/quanxiang-cloud/cabin/logger"
+	"github.com/quanxiang-cloud/polygate/pkg/basic/header"
 	"github.com/quanxiang-cloud/polygate/pkg/config"
 	"github.com/quanxiang-cloud/polygate/pkg/dependence/remotes"
 	"github.com/quanxiang-cloud/polygate/pkg/gate/chain"
@@ -17,6 +20,9 @@ func New(cfg *config.Config) chain.Handler {
 	authToken := mustNewClient(&cfg.Remotes.OauthToken)
 	tt := tiretree.NewTireTree()
 	if err := tt.BatchInsert(cfg.APIFilterConfig.White, tiretree.White); err != nil {
+		panic(err)
+	}
+	if err := tt.BatchInsertKV(cfg.RedrectService); err != nil {
 		panic(err)
 	}
 	logger.Logger.Infow(tt.Show())
@@ -43,8 +49,15 @@ type authorize struct {
 }
 
 func (v *authorize) Handle(c *gin.Context) error {
-	if b, ok := v.filter.Match(c.Request.URL.Path); ok && b == tiretree.White {
-		return nil
+	if val, ok := v.filter.Match(c.Request.URL.Path); ok {
+		switch {
+		case val == tiretree.White:
+			return nil
+		case val == tiretree.Black:
+			return errors.New("forbidden")
+		case len(val) > 1:
+			c.Set(header.HeaderXRedirectService, val)
+		}
 	}
 	return v.c.Request(c)
 }

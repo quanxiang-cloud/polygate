@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/quanxiang-cloud/cabin/error/errdefiner"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/quanxiang-cloud/cabin/error/errdefiner"
 )
 
 // BindBody bind gin body

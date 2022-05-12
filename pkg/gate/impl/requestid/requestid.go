@@ -37,7 +37,7 @@ func (v *requsetid) Handle(c *gin.Context) error {
 }
 
 func (v *requsetid) genID() string {
-	return id.WithPrefix(id.ShortID(12), "req_")
+	return id.WithPrefix(id.ShortID(12), "")
 }
 
 func (v *requsetid) Name() string {

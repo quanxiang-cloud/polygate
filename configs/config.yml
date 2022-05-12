@@ -66,6 +66,8 @@ apiFilter:
     - /api/v1/message/ws
     - /api/v1/message/ws/
   black:
+redirectService:
+  "/api/v1/polyapi/request/*": "form"
 
 #  -------------------- log --------------------
 # comply with zap log specification
