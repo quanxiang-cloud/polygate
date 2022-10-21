@@ -65,7 +65,10 @@ apiFilter:
     - /api/v1/org/h/account/register/code
     - /api/v1/message/ws
     - /api/v1/message/ws/
+    - /api/v1/fileserver/domain
+    - /api/v1/polyapi
   black:
+
 redirectService:
   "/api/v1/polyapi/request/*": "form"
 
@@ -85,8 +88,20 @@ log:
 # -------------------- redis --------------------
 redis:
   addrs:
-    - 192.168.200.18:6379
-    - 192.168.200.19:6379
-    - 192.168.200.20:6379
+    - 192.168.200.13:31532
   username:
-  password:
+  password: qxp1234
+
+
+#  -------------------- handler --------------------
+handler: 
+  # topic kafka topic
+  topic: record-log
+  # group kafka group
+  group: audit
+  numOfProcessor: 3
+  buffer: 100
+# -------------------- kafka --------------------
+kafka:
+  broker:
+    - 192.168.200.8:31151

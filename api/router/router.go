@@ -51,7 +51,8 @@ func newRouter(c *config.Config) (*gin.Engine, error) {
 	gin.SetMode(c.Model)
 	engine := gin.New()
 
-	engine.Use(ginlog.GinLogger(), ginlog.GinRecovery())
+	engine.Use(ginlog.GinLogger(), NewRecord(c).record(), ginlog.GinRecovery())
+
 	if err := gateentry.InitGate(c); err != nil {
 		return nil, err
 	}

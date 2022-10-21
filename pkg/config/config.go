@@ -1,9 +1,11 @@
 package config
 
 import (
+	"crypto/tls"
 	"io/ioutil"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/quanxiang-cloud/cabin/logger"
 
 	"gopkg.in/yaml.v2"
@@ -26,6 +28,9 @@ type Config struct {
 	Remotes         RemotesConfig     `yaml:"remotes"`
 	Proxy           Proxy             `yaml:"proxy"`
 	Log             *logger.Config    `yaml:"log"`
+
+	Kafka   Kafka   `yaml:"kafka"`
+	Handler Handler `yaml:"handler"`
 }
 
 // NewConfig 获取配置配置
@@ -101,4 +106,30 @@ type Proxy struct {
 // APIFilterConfig is the api black list
 type APIFilterConfig struct {
 	White []string
+}
+
+// Handler handler
+type Handler struct {
+	Topic          string `yaml:"topic"`
+	Group          string `yaml:"group"`
+	NumOfProcessor int    `yaml:"numOfProcessor"`
+	Buffer         int    `yaml:"buffer"`
+}
+
+// Kafka kafka config
+type Kafka struct {
+	Sarama sarama.Config
+
+	Broker []string `yaml:"broker"`
+	TLS    *tls.Config
+}
+
+func pre(conf Kafka) *sarama.Config {
+	config := sarama.NewConfig()
+
+	// TLS
+	config.Net.TLS.Enable = conf.Sarama.Net.TLS.Enable
+	config.Net.TLS.Config = conf.Sarama.Net.TLS.Config
+
+	return config
 }
